@@ -1,0 +1,142 @@
+{
+  "dashboard": {
+    "title": "System Health Dashboard",
+    "description": "Monitoring of system-level metrics including CPU, memory, disk, and network usage across all containers.",
+    "version": 1,
+    "timeRestore": false,
+    "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+    },
+    "timeFrom": "now-15m",
+    "timeTo": "now",
+    "refreshInterval": {
+      "display": "5 seconds",
+      "pause": false,
+      "value": 5000
+    },
+    "panelsJSON": "[{\"id\":\"cpu-usage-by-container\",\"type\":\"line\",\"panelIndex\":1,\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_0\"},{\"id\":\"memory-consumption\",\"type\":\"area\",\"panelIndex\":2,\"gridData\":{\"x\":0,\"y\":15,\"w\":24,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_1\"},{\"id\":\"disk-io-operations\",\"type\":\"metric\",\"panelIndex\":3,\"gridData\":{\"x\":0,\"y\":30,\"w\":12,\"h\":10},\"version\":\"8.11.3\",\"panelRefName\":\"panel_2\"},{\"id\":\"network-traffic\",\"type\":\"metric\",\"panelIndex\":4,\"gridData\":{\"x\":12,\"y\":30,\"w\":12,\"h\":10},\"version\":\"8.11.3\",\"panelRefName\":\"panel_3\"}]"
+  },
+  "index_patterns": [
+    {
+      "title": "metrics-*",
+      "fields": {}
+    }
+  ],
+  "searches": [
+    {
+      "title": "Container Metrics",
+      "description": "",
+      "hits": 0,
+      "columns": [],
+      "sort": ["@timestamp", "desc"],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-*\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      }
+    }
+  ],
+  "visualizations": [
+    {
+      "title": "CPU Usage by Container",
+      "visState": "{\"title\":\"CPU Usage by Container\",\"type\":\"line\",\"params\":{\"type\":\"line\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#d3dae6\",\"fontSize\":10}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"labels\":{\"show\":true,\"truncate\":100},\"title\":{},\"scale\":{\"type\":\"linear\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"CPU Usage (%)\"},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"}}],\"seriesParams\":[{\"data\":{\"label\":\"CPU\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"show\":\"true\",\"mode\":\"stacked\",\"type\":\"normal\",\"valueAxis\":\"ValueAxis-1\",\"interpolate\":\"linear\",\"lineWidth\":2}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"docker.container.cpu.usage.pct\",\"key\":\"exists\",\"params\":{\"type\":\"docker.container.cpu.usage.pct\"}},\"query\":{\"exists\":{\"field\":\"docker.container.cpu.usage.pct\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "metrics-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "docker.container.cpu.usage.pct"
+            }
+          ],
+          "bucket": {
+            "type": "date_histogram",
+            "field": "@timestamp",
+            "interval": "auto"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Memory Consumption",
+      "visState": "{\"title\":\"Memory Consumption\",\"type\":\"area\",\"params\":{\"type\":\"area\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#d3dae6\",\"fontSize\":10}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"labels\":{\"show\":true,\"truncate\":100},\"title\":{},\"scale\":{\"type\":\"linear\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Memory Usage (MB)\"},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"}}],\"seriesParams\":[{\"data\":{\"label\":\"Memory\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"show\":\"true\",\"mode\":\"stacked\",\"type\":\"area\",\"valueAxis\":\"ValueAxis-1\",\"interpolate\":\"linear\",\"lineWidth\":2}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"docker.container.memory.used.bytes\",\"key\":\"exists\",\"params\":{\"type\":\"docker.container.memory.used.bytes\"}},\"query\":{\"exists\":{\"field\":\"docker.container.memory.used.bytes\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "metrics-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "docker.container.memory.used.bytes"
+            }
+          ],
+          "bucket": {
+            "type": "date_histogram",
+            "field": "@timestamp",
+            "interval": "auto"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Disk I/O Operations",
+      "visState": "{\"title\":\"Disk I/O Operations\",\"type\":\"metric\",\"params\":{\"fontSize\":\"20\",\"subMetricFontSize\":\"14\",\"labelFontSize\":\"12\",\"numberFormat\":\"0,0.[000]\",\"invertColors\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"metricColorMode\":\"None\",\"metricsAtMinimum\":false,\"bgcolor\":false,\"labelColor\":false,\"labels\":{\"show\":true},\"arrangement\":\"Horizontal\",\"sparkline\":{\"show\":true,\"type\":\"line\",\"lineWidth\":3,\"showPoints\":\"none\",\"pointSize\":2,\"steps\":false,\"thresholdLine\":false,\"thresholdValue\":null,\"fill\":\"none\"},\"percentageMode\":false,\"useRanges\":false,\"colorSchema\":\"Green to Red\",\"metricScale\":\"normal\",\"setYExtents\":false,\"topPanelHeight\":\"35px\",\"bottomPanelHeight\":\"35px\"}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"docker.container.io.read.bytes\",\"key\":\"exists\",\"params\":{\"type\":\"docker.container.io.read.bytes\"}},\"query\":{\"exists\":{\"field\":\"docker.container.io.read.bytes\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "metrics-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "docker.container.io.read.bytes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Network Traffic",
+      "visState": "{\"title\":\"Network Traffic\",\"type\":\"metric\",\"params\":{\"fontSize\":\"20\",\"subMetricFontSize\":\"14\",\"labelFontSize\":\"12\",\"numberFormat\":\"0,0.[000]\",\"invertColors\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"metricColorMode\":\"None\",\"metricsAtMinimum\":false,\"bgcolor\":false,\"labelColor\":false,\"labels\":{\"show\":true},\"arrangement\":\"Horizontal\",\"sparkline\":{\"show\":true,\"type\":\"line\",\"lineWidth\":3,\"showPoints\":\"none\",\"pointSize\":2,\"steps\":false,\"thresholdLine\":false,\"thresholdValue\":null,\"fill\":\"none\"},\"percentageMode\":false,\"useRanges\":false,\"colorSchema\":\"Green to Red\",\"metricScale\":\"normal\",\"setYExtents\":false,\"topPanelHeight\":\"35px\",\"bottomPanelHeight\":\"35px\"}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"docker.container.network.in.bytes\",\"key\":\"exists\",\"params\":{\"type\":\"docker.container.network.in.bytes\"}},\"query\":{\"exists\":{\"field\":\"docker.container.network.in.bytes\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "metrics-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "docker.container.network.in.bytes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

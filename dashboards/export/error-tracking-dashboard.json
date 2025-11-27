@@ -1,0 +1,130 @@
+{
+  "dashboard": {
+    "title": "Error Tracking Dashboard",
+    "description": "Comprehensive monitoring of application errors by severity, type, and distribution across services.",
+    "version": 1,
+    "timeRestore": false,
+    "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+    },
+    "timeFrom": "now-24h",
+    "timeTo": "now",
+    "refreshInterval": {
+      "display": "10 seconds",
+      "pause": false,
+      "value": 10000
+    },
+    "panelsJSON": "[{\"id\":\"error-count-by-level\",\"type\":\"histogram\",\"panelIndex\":1,\"gridData\":{\"x\":0,\"y\":0,\"w\":12,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_0\"},{\"id\":\"top-error-messages\",\"type\":\"table\",\"panelIndex\":2,\"gridData\":{\"x\":12,\"y\":0,\"w\":12,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_1\"},{\"id\":\"error-distribution-by-service\",\"type\":\"pie\",\"panelIndex\":3,\"gridData\":{\"x\":0,\"y\":15,\"w\":12,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_2\"},{\"id\":\"error-trends-over-time\",\"type\":\"line\",\"panelIndex\":4,\"gridData\":{\"x\":12,\"y\":15,\"w\":12,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_3\"}]"
+  },
+  "index_patterns": [
+    {
+      "title": "logs-*",
+      "fields": {}
+    }
+  ],
+  "searches": [
+    {
+      "title": "Error Messages",
+      "description": "",
+      "hits": 0,
+      "columns": [],
+      "sort": ["@timestamp", "desc"],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or level: \\\"WARN\\\" or json_data.level: \\\"ERROR\\\" or json_data.level: \\\"WARN\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-24h\",\"to\":\"now\"}}"
+      }
+    }
+  ],
+  "visualizations": [
+    {
+      "title": "Error Count by Level",
+      "visState": "{\"title\":\"Error Count by Severity Level\",\"type\":\"histogram\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#d3dae6\",\"fontSize\":10}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"labels\":{\"show\":true,\"truncate\":100},\"title\":{},\"scale\":{\"type\":\"linear\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"}}],\"seriesParams\":[{\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"show\":\"true\",\"mode\":\"stacked\",\"type\":\"bar\",\"valueAxis\":\"ValueAxis-1\",\"interpolate\":\"linear\",\"lineWidth\":2}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or level: \\\"WARN\\\" or json_data.level: \\\"ERROR\\\" or json_data.level: \\\"WARN\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-24h\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucket": {
+            "type": "terms",
+            "field": "level.keyword",
+            "size": 5
+          }
+        },
+        {
+          "id": "b",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "2",
+              "type": "count"
+            }
+          ],
+          "bucket": {
+            "type": "terms",
+            "field": "json_data.level.keyword",
+            "size": 5
+          }
+        }
+      ]
+    },
+    {
+      "title": "Top Error Messages",
+      "visState": "{\"title\":\"Top Error Messages\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showMetricsAtAllLevels\":false,\"showTotal\":false,\"totalFunc\":\"sum\",\"showToolbar\":true,\"showTimeColumn\":true,\"timeColWidth\":200},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"Count\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"message.keyword\",\"size\":10,\"orderDirection\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Error Message\"}}]}",
+      "uiStateJSON": "{\"P-1\":{\"sort\":[1,\"desc\"]}}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or json_data.level: \\\"ERROR\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-24h\",\"to\":\"now\"}}"
+      },
+      "sources": []
+    },
+    {
+      "title": "Error Distribution by Service",
+      "visState": "{\"title\":\"Error Distribution by Service\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":true,\"values\":true,\"last_level\":true,\"truncate\":100},\"fontSize\":14,\"legendSize\":\"small\",\"groups\":{\"groupByFitMode\":\"fit\",\"showOtherBucket\":true,\"otherBucketLabel\":\"Other\",\"missingBucket\":true,\"missingBucketLabel\":\"Missing\"},\"startAngle\":0,\"hole\":0.4,\"colorSchema\":\"palette\",\"alignment\":\"horizontal\",\"legendMode\":\"standard\",\"truncateLegend\":true,\"maxLegendRows\":5,\"distinctColors\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"service_name.keyword\",\"size\":5,\"orderDirection\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Service\"}}]}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or json_data.level: \\\"ERROR\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-24h\",\"to\":\"now\"}}"
+      },
+      "sources": []
+    },
+    {
+      "title": "Error Trends Over Time",
+      "visState": "{\"title\":\"Error Trends Over Time\",\"type\":\"line\",\"params\":{\"type\":\"line\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#d3dae6\",\"fontSize\":10}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"labels\":{\"show\":true,\"truncate\":100},\"title\":{},\"scale\":{\"type\":\"linear\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Error Count\"},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"}}],\"seriesParams\":[{\"data\":{\"label\":\"Errors\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"show\":\"true\",\"mode\":\"normal\",\"type\":\"normal\",\"valueAxis\":\"ValueAxis-1\",\"interpolate\":\"linear\",\"lineWidth\":2}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or json_data.level: \\\"ERROR\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-24h\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucket": {
+            "type": "date_histogram",
+            "field": "@timestamp",
+            "interval": "30m"
+          }
+        }
+      ]
+    }
+  ]
+}

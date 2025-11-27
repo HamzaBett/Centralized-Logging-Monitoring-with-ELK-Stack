@@ -1,0 +1,53 @@
+# Elasticsearch Configuration
+cluster.name: ${CLUSTER_NAME}
+
+# Node Configuration
+node.name: ${HOSTNAME}
+node.master: true
+node.data: true
+node.ingest: true
+node.transform: true
+
+# Network Configuration
+network.host: 0.0.0.0
+http.port: ${HTTP_PORT}
+
+# Discovery Configuration
+discovery.seed_hosts:
+  - elasticsearch-master-1
+  - elasticsearch-master-2
+  - elasticsearch-master-3
+cluster.initial_master_nodes:
+  - elasticsearch-master-1
+  - elasticsearch-master-2
+  - elasticsearch-master-3
+
+# Memory Configuration
+bootstrap.memory_lock: true
+indices.memory.index_buffer_size: 30%
+
+# Security Configuration
+xpack.security.enabled: ${XPACK_SECURITY_ENABLED}
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.key: ${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+xpack.security.http.ssl.certificate: ${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.key: ${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+xpack.security.transport.ssl.certificate: ${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+xpack.security.transport.ssl.certificate_authorities: ${CERTIFICATE_AUTHORITIES}/ca.crt
+
+# Cluster Settings
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.low: 85%
+cluster.routing.allocation.disk.watermark.high: 90%
+cluster.routing.allocation.disk.watermark.flood_stage: 95%
+
+# Index Settings
+index.number_of_shards: 3
+index.number_of_replicas: 2
+
+# ILM Configuration
+indices.lifecycle.poll_interval: 10m
+
+# Monitoring
+xpack.monitoring.collection.enabled: true

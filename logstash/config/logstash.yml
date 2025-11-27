@@ -1,0 +1,30 @@
+# Logstash Configuration
+http.host: "0.0.0.0"
+path.config: /usr/share/logstash/pipeline
+
+# Monitoring
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: ${ELASTICSEARCH_URLS}
+xpack.monitoring.elasticsearch.username: ${ELASTICSEARCH_USER}
+xpack.monitoring.elasticsearch.password: ${ELASTICSEARCH_PASSWORD}
+
+# Pipeline Settings
+pipeline.workers: ${LOGSTASH_PIPELINE_WORKERS}
+pipeline.batch.size: ${LOGSTASH_PIPELINE_BATCH_SIZE}
+pipeline.batch.delay: ${LOGSTASH_PIPELINE_BATCH_DELAY}
+pipeline.unsafe_shutdown: false
+
+# Queue Settings
+queue.type: persisted
+queue.max_bytes: 1gb
+queue.checkpoint.writes: 1
+
+# Dead Letter Queue
+dead_letter_queue.enable: true
+dead_letter_queue.max_bytes: 1gb
+
+# SSL Configuration
+ssl.certificate_authorities: ${CERTIFICATE_AUTHORITIES}/ca.crt
+ssl.certificate: ${CERTIFICATE_AUTHORITIES}/logstash/logstash.crt
+ssl.key: ${CERTIFICATE_AUTHORITIES}/logstash/logstash.key
+ssl.key_passphrase: ${SSL_KEY_PASSPHRASE}

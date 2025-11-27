@@ -1,0 +1,273 @@
+version: '3.8'
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  elasticsearch_data_1:
+  elasticsearch_data_2:
+  elasticsearch_data_3:
+  logstash_pipeline:
+  kibana_config:
+  filebeat_config:
+  certs:
+
+services:
+  # Elasticsearch Master Nodes
+  elasticsearch-master-1:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    container_name: elasticsearch-master-1
+    environment:
+      - node.name=elasticsearch-master-1
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.seed_hosts=elasticsearch-master-2,elasticsearch-master-3
+      - cluster.initial_master_nodes=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-master-3
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.transport.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.certificate_authorities=${CERTIFICATE_AUTHORITIES}/ca.crt
+    volumes:
+      - elasticsearch_data_1:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - certs:/usr/share/elasticsearch/config/certs:ro
+    ports:
+      - "${HTTP_PORT}:9200"
+    networks:
+      - elk
+    deploy:
+      resources:
+        limits:
+          memory: ${ELASTICSEARCH_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  elasticsearch-master-2:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    container_name: elasticsearch-master-2
+    environment:
+      - node.name=elasticsearch-master-2
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-3
+      - cluster.initial_master_nodes=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-master-3
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.transport.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.certificate_authorities=${CERTIFICATE_AUTHORITIES}/ca.crt
+    volumes:
+      - elasticsearch_data_2:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - certs:/usr/share/elasticsearch/config/certs:ro
+    networks:
+      - elk
+    deploy:
+      resources:
+        limits:
+          memory: ${ELASTICSEARCH_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  elasticsearch-master-3:
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    container_name: elasticsearch-master-3
+    environment:
+      - node.name=elasticsearch-master-3
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-2
+      - cluster.initial_master_nodes=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-master-3
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.key
+      - xpack.security.transport.ssl.certificate=${CERTIFICATE_AUTHORITIES}/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.certificate_authorities=${CERTIFICATE_AUTHORITIES}/ca.crt
+    volumes:
+      - elasticsearch_data_3:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - certs:/usr/share/elasticsearch/config/certs:ro
+    networks:
+      - elk
+    deploy:
+      resources:
+        limits:
+          memory: ${ELASTICSEARCH_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Logstash Service
+  logstash:
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+    container_name: logstash
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.monitoring.elasticsearch.hosts[0]=https://elasticsearch-master-1:9200
+      - ELASTICSEARCH_URLS=https://elasticsearch-master-1:9200
+      - ELASTICSEARCH_USER=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - LOGSTASH_PIPELINE_WORKERS=${LOGSTASH_PIPELINE_WORKERS}
+      - LOGSTASH_PIPELINE_BATCH_SIZE=${LOGSTASH_PIPELINE_BATCH_SIZE}
+      - LOGSTASH_PIPELINE_BATCH_DELAY=${LOGSTASH_PIPELINE_BATCH_DELAY}
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - certs:/usr/share/logstash/config/certs:ro
+    ports:
+      - "5044:5044"  # Beats input
+      - "5000:5000"  # TCP input (optional)
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch-master-1
+      - elasticsearch-master-2
+      - elasticsearch-master-3
+    deploy:
+      resources:
+        limits:
+          memory: ${LOGSTASH_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail http://localhost:9600?pretty || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Kibana Service
+  kibana:
+    build:
+      context: ./kibana
+      dockerfile: Dockerfile
+    container_name: kibana
+    environment:
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=https://elasticsearch-master-1:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - XPACK_MONITORING_ENABLED=true
+      - XPACK_SECURITY_ENABLED=true
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_KEY=${CERTIFICATE_AUTHORITIES}/kibana/kibana.key
+      - SERVER_SSL_CERTIFICATE=${CERTIFICATE_AUTHORITIES}/kibana/kibana.crt
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - certs:/usr/share/kibana/config/certs:ro
+    ports:
+      - "${KIBANA_SERVER_PORT}:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch-master-1
+      - elasticsearch-master-2
+      - elasticsearch-master-3
+    deploy:
+      resources:
+        limits:
+          memory: ${KIBANA_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail -I http://localhost:5601 | grep 'HTTP/1.1 302' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Filebeat Service
+  filebeat:
+    build:
+      context: ./filebeat
+      dockerfile: Dockerfile
+    container_name: filebeat
+    user: root
+    environment:
+      - ELASTICSEARCH_HOSTS=https://elasticsearch-master-1:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - certs:/usr/share/filebeat/config/certs:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch-master-1
+      - elasticsearch-master-2
+      - elasticsearch-master-3
+      - logstash
+    deploy:
+      resources:
+        limits:
+          memory: ${FILEBEAT_MEM_LIMIT}
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "--fail", "http://localhost:5066?pretty"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Sample Applications
+  app1:
+    build:
+      context: ./sample-apps/app1
+      dockerfile: Dockerfile
+    container_name: app1
+    environment:
+      - NODE_ENV=production
+    networks:
+      - elk
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  app2:
+    build:
+      context: ./sample-apps/app2
+      dockerfile: Dockerfile
+    container_name: app2
+    environment:
+      - NODE_ENV=production
+    networks:
+      - elk
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped

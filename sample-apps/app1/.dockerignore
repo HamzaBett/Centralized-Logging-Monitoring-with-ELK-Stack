@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+Dockerfile
+docker-compose.yml
+*.log
+certs
+*.key
+*.crt
+__pycache__
+.env

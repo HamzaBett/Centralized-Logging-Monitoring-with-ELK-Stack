@@ -1,0 +1,17 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Keep shell scripts LF
+*.sh text eol=lf
+
+# PowerShell scripts CRLF
+*.ps1 text eol=crlf
+
+# Ensure JSON stays as-is
+*.json text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary

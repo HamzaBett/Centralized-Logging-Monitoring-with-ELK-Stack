@@ -1,0 +1,37 @@
+# Kibana Configuration
+server.name: ${SERVER_NAME}
+server.host: "0.0.0.0"
+server.port: ${KIBANA_SERVER_PORT}
+
+# Elasticsearch Connection
+elasticsearch.hosts: ${ELASTICSEARCH_HOSTS}
+elasticsearch.username: ${ELASTICSEARCH_USERNAME}
+elasticsearch.password: ${ELASTICSEARCH_PASSWORD}
+elasticsearch.ssl.certificateAuthorities: ${CERTIFICATE_AUTHORITIES}/ca.crt
+
+# Security
+xpack.security.enabled: ${XPACK_SECURITY_ENABLED}
+xpack.security.sessionTimeout: 600000
+
+# Monitoring
+xpack.monitoring.enabled: ${XPACK_MONITORING_ENABLED}
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+
+# SSL Configuration
+server.ssl.enabled: ${SERVER_SSL_ENABLED}
+server.ssl.certificate: ${SERVER_SSL_CERTIFICATE}
+server.ssl.key: ${SERVER_SSL_KEY}
+
+# Saved Objects Management
+savedObjects.maxImportPayloadBytes: 26214400
+savedObjects.maxExportSize: 10000
+
+# Newsfeed
+newsfeed.enabled: false
+
+# Telemetry
+telemetry.optIn: false
+analytics.optOut: true
+
+# Internationalization
+i18n.locale: "en"

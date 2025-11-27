@@ -1,0 +1,147 @@
+{
+  "dashboard": {
+    "title": "Application Performance Monitoring",
+    "description": "Real-time monitoring of application performance metrics including response times, throughput, and error rates.",
+    "version": 1,
+    "timeRestore": false,
+    "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+    },
+    "timeFrom": "now-15m",
+    "timeTo": "now",
+    "refreshInterval": {
+      "display": "5 seconds",
+      "pause": false,
+      "value": 5000
+    },
+    "panelsJSON": "[{\"id\":\"response-time-trend\",\"type\":\"line\",\"panelIndex\":1,\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_0\"},{\"id\":\"requests-per-minute\",\"type\":\"metric\",\"panelIndex\":2,\"gridData\":{\"x\":0,\"y\":15,\"w\":12,\"h\":10},\"version\":\"8.11.3\",\"panelRefName\":\"panel_1\"},{\"id\":\"error-rate\",\"type\":\"gauge\",\"panelIndex\":3,\"gridData\":{\"x\":12,\"y\":15,\"w\":12,\"h\":10},\"version\":\"8.11.3\",\"panelRefName\":\"panel_2\"},{\"id\":\"top-slowest-endpoints\",\"type\":\"table\",\"panelIndex\":4,\"gridData\":{\"x\":0,\"y\":25,\"w\":24,\"h\":15},\"version\":\"8.11.3\",\"panelRefName\":\"panel_3\"}]"
+  },
+  "index_patterns": [
+    {
+      "title": "logs-*",
+      "fields": {}
+    }
+  ],
+  "searches": [
+    {
+      "title": "Response Time Trend",
+      "description": "",
+      "hits": 0,
+      "columns": [],
+      "sort": ["@timestamp", "desc"],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"json_data.responseTime\",\"key\":\"exists\",\"params\":{\"type\":\"json_data.responseTime\"}},\"query\":{\"exists\":{\"field\":\"json_data.responseTime\"}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    }
+  ],
+  "visualizations": [
+    {
+      "title": "Response Time Trend",
+      "visState": "{\"title\":\"Average Response Time\",\"type\":\"line\",\"params\":{\"type\":\"line\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#d3dae6\",\"fontSize\":10}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"labels\":{\"show\":true,\"truncate\":100},\"title\":{},\"scale\":{\"type\":\"linear\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Response Time (ms)\"},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"}}],\"seriesParams\":[{\"data\":{\"label\":\"Average\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"show\":\"true\",\"mode\":\"normal\",\"type\":\"normal\",\"valueAxis\":\"ValueAxis-1\",\"interpolate\":\"linear\",\"lineWidth\":2}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"json_data.responseTime\",\"key\":\"exists\",\"params\":{\"type\":\"json_data.responseTime\"}},\"query\":{\"exists\":{\"field\":\"json_data.responseTime\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "avg",
+              "field": "json_data.responseTime"
+            }
+          ],
+          "bucket": {
+            "type": "date_histogram",
+            "field": "@timestamp",
+            "interval": "auto"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Requests Per Minute",
+      "visState": "{\"title\":\"Requests Per Minute\",\"type\":\"metric\",\"params\":{\"fontSize\":\"20\",\"subMetricFontSize\":\"14\",\"labelFontSize\":\"12\",\"numberFormat\":\"0,0.[000]\",\"invertColors\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"metricColorMode\":\"None\",\"metricsAtMinimum\":false,\"bgcolor\":false,\"labelColor\":false,\"labels\":{\"show\":true},\"arrangement\":\"Horizontal\",\"sparkline\":{\"show\":true,\"type\":\"line\",\"lineWidth\":3,\"showPoints\":\"none\",\"pointSize\":2,\"steps\":false,\"thresholdLine\":false,\"thresholdValue\":null,\"fill\":\"none\"},\"percentageMode\":false,\"useRanges\":false,\"colorSchema\":\"Green to Red\",\"metricScale\":\"normal\",\"setYExtents\":false,\"topPanelHeight\":\"35px\",\"bottomPanelHeight\":\"35px\"}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"method\",\"key\":\"exists\",\"params\":{\"type\":\"method\"}},\"query\":{\"exists\":{\"field\":\"method\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucket": {
+            "type": "date_histogram",
+            "field": "@timestamp",
+            "interval": "60s"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Error Rate",
+      "visState": "{\"title\":\"Error Rate\",\"type\":\"gauge\",\"params\":{\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"extendRange\":false,\"percentageMode\":true,\"gaugeType\":\"Arc\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorMode\":\"Labels\",\"colorsRange\":[{\"from\":0,\"to\":0.1},{\"from\":0.1,\"to\":0.5},{\"from\":0.5,\"to\":1}],\"inverseColors\":false,\"labels\":{\"show\":true},\"scale\":{\"show\":true,\"labels\":false,\"width\":2},\"type\":\"symmetric\",\"style\":{\"fontSize\":20,\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"font\":{\"labelPosition\":\"inside\",\"customFont\":false,\"fontSize\":20}}}},\"metric\":{\"angle\":90,\"color\":\"black\",\"bgcolor\":false,\"labelColor\":false,\"labels\":{\"show\":true},\"percentageMode\":true,\"placeholder\":\"\",\"font\":{\"decimals\":2,\"customFont\":false,\"fontSize\":60,\"fontWeight\":\"bold\",\"labelPosition\":\"inside\",\"subText\":\"\"}}}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"level: \\\"ERROR\\\" or json_data.level: \\\"ERROR\\\"\"},\"filter\":[],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": [
+        {
+          "id": "a",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucket": {
+            "type": "range",
+            "ranges": [
+              {
+                "from": 0,
+                "to": 100
+              }
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "type": "rollup",
+          "rollup": "logs-*",
+          "metrics": [
+            {
+              "id": "2",
+              "type": "count"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Top Slowest Endpoints",
+      "visState": "{\"title\":\"Top Slowest Endpoints\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showMetricsAtAllLevels\":false,\"showTotal\":false,\"totalFunc\":\"sum\",\"showToolbar\":true,\"showTimeColumn\":true,\"timeColWidth\":200},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"json_data.responseTime\",\"customLabel\":\"Average Response Time\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"json_data.endpoint.keyword\",\"size\":10,\"orderDirection\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Endpoint\"}}]}",
+      "uiStateJSON": "{\"P-1\":{\"sort\":[1,\"desc\"]}}",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"logs-*\",\"query\":{\"language\":\"kuery\",\"query\":\"json_data.responseTime:*\"},\"filter\":[{\"meta\":{\"negate\":false,\"disabled\":false,\"alias\":null,\"compare\":\"exists\",\"field\":\"json_data.responseTime\",\"key\":\"exists\",\"params\":{\"type\":\"json_data.responseTime\"}},\"query\":{\"exists\":{\"field\":\"json_data.responseTime\"}},\"$state\":{\"store\":\"appState\"}}],\"timerange\":{\"from\":\"now-15m\",\"to\":\"now\"}}"
+      },
+      "sources": []
+    }
+  ]
+}
